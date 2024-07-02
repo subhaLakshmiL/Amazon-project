@@ -1,4 +1,4 @@
-import { cart } from '../data/cart.js';
+import { cart, addToCart } from '../data/cart.js'; // import * as cartModule from '../data/cart.js'
 import { products } from '../data/products.js';
 
 let productsHTML = '';
@@ -59,24 +59,27 @@ document.querySelector('.js-products-grid').innerHTML = productsHTML;
 
 const addedMessageTimeouts = {};
 
-function addToCart(productId, quantity) {
-    let matchingItem = cart.find(item => item.productId === productId);
+const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
+        addedMessage.classList.add('added-to-cart-visible');
 
-    if (matchingItem) {
-        matchingItem.quantity += quantity;
-    } else {
-        cart.push({
-            productId: productId,
-            quantity: quantity
-        });
-    }
-}
+        const previousTimeoutId = addedMessageTimeouts[productId];
+        if (previousTimeoutId) {
+            clearTimeout(previousTimeoutId);
+        }
+
+        const timeoutId = setTimeout(() => {
+            addedMessage.classList.remove('added-to-cart-visible');
+        }, 2000);
+
+        addedMessageTimeouts[productId] = timeoutId;
+
+
 
 function updateCartQuantity()
 {
     let cartQuantity = 0;
-        cart.forEach((item) => {
-            cartQuantity += item.quantity;
+        cart.forEach((cartitem) => {
+            cartQuantity += cartitem.quantity;
         });
 
         document.querySelector('.js-cart-quantity').innerHTML = cartQuantity;
@@ -93,20 +96,5 @@ document.querySelectorAll('.js-add-to-cart').forEach((button) => {
         addToCart(productId, quantity);
         updateCartQuantity();
         
-        const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
-        addedMessage.classList.add('added-to-cart-visible');
-
-        const previousTimeoutId = addedMessageTimeouts[productId];
-        if (previousTimeoutId) {
-            clearTimeout(previousTimeoutId);
-        }
-
-        const timeoutId = setTimeout(() => {
-            addedMessage.classList.remove('added-to-cart-visible');
-        }, 2000);
-
-        addedMessageTimeouts[productId] = timeoutId;
-
-        console.log(cart);
     });
 });
